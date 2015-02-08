@@ -1,3 +1,17 @@
+function show_fg_colors() {
+    local fgc colorcount
+    colorcount=$(tput colors)
+
+    # foreground colors
+    for fgc in $(seq 0 $colorcount); do
+	printf "$(tput setaf $fgc)%4s" $fgc
+	if [ $(( (fgc + 1) % 14)) == 0 -a $fgc != 0 ]; then
+	    echo ""
+	fi
+    done
+    echo; echo
+}
+
 # foregrounds
 CONSOLE_FG_BLACK="\[$(tput setaf 0)\]"
 CONSOLE_FG_RED="\[$(tput setaf 1)\]"
