@@ -1,0 +1,74 @@
+echo "$(date +'%m/%d/%C %H:%M:%S') Evaluating ~/.bashrc"
+
+export EDITOR=emacs
+
+# add/override MAC OSX utils with homebrew-installed coreutils
+export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
+export MANPATH="/usr/local/opt/coreutils/libexec/gnuman:$MANPATH"
+# add apache-maven to the path
+export PATH="/usr/local/apache-maven/bin/:$PATH"
+# add java configuration
+export JAVA_HOME="/Library/Java/JavaVirtualMachines/jdk1.8.0_31.jdk/Contents/Home"
+export PATH="$JAVA_HOME/bin/:$PATH"
+
+# color variables
+if [ -f ~/.colorsetup ]; then
+    source ~/.colorsetup
+fi
+
+# fun unicode characters
+# the easy way to get the utf-8 code is to fire up python
+# set a string variable s = u'\u${UNICODE-NUMBER} and then
+# do s.encode('utf-8')
+COFFEE_MUG=$(echo -e "\xe2\x98\x95")
+CROSSBONES=$(echo -e "\xe2\x98\xa0")
+
+export CLICOLOR=1
+alias ls='ls --color=always'
+#alias grep='grep --color=always'
+export GREP_OPTIONS='--color=always'
+# what about less?
+
+# BSD/OSX uses LSCOLORS with a different format than
+# the Linux LS_COLORS variable set by dircolors
+#export LSCOLORS="ExGxFxDxCxDxDxhbhdacEc"
+
+# the color to use when running the hl (highlight command)
+export HIGHLIGHTER_COLOR="\[${CONSOLE_ATTR_BOLD}${CONSOLE_FG_RED}\]"
+function hl {
+    # turn the parameter list into an R.E. for sed
+    RE=$(echo "$@" | sed -E 's/[[:space:]]+/|/g')
+    sed -E "s/$RE/${HIGHLIGHTER_COLOR}&${CONSOLE_ATTR_NONE}/g"
+}
+
+export CONSOLE_USER_COLOR="\[$(tput setaf 202)\]"
+export CONSOLE_HOST_COLOR="\[$(tput setaf 160)\]"
+export CONSOLE_PWD_COLOR="\[$(tput setaf 25)\]"
+export TERM_TITLE=""
+bash_prompt_command() {
+    RETURN_CODE_COLOR="${CONSOLE_FG_RED}${CROSSBONES}${CONSOLE_ATTR_NONE} "
+    if [[ $? == 0 ]]; then
+	RETURN_CODE_COLOR="${CONSOLE_FG_GREEN}${COFFEE_MUG}${CONSOLE_ATTR_NONE} "
+    fi
+    # \[\033]0;$TERM_TITLE \u@\h:\w\007\]
+    export PS1="${RETURN_CODE_COLOR}\t${CONSOLE_USER_COLOR}\u${CONSOLE_ATTR_NONE}@${CONSOLE_HOST_COLOR}\h${CONSOLE_ATTR_NONE}:${CONSOLE_PWD_COLOR}\w${CONSOLE_ATTR_NONE} "
+}
+
+PROMPT_COMMAND=bash_prompt_command
+function set_title() {
+    export TERM_TITLE=$1
+}
+
+function colors() {
+    local fgc colorcount
+    colorcount=$(tput colors)
+
+    # foreground colors
+    for fgc in $(seq 0 $colorcount); do
+	printf "$(tput setaf $fgc)%4s" $fgc
+	if [ $(( (fgc + 1) % 14)) == 0 -a $fgc != 0 ]; then
+	    echo ""
+	fi
+    done
+    echo; echo
+}
