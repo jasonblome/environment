@@ -2,6 +2,11 @@ echo "$(date +'%m/%d/%C %H:%M:%S') Evaluating ~/.bashrc"
 
 export EDITOR=emacs
 
+# Avoid duplicates
+export HISTCONTROL=ignoredups:erasedups
+# When the shell exits, append to the history file instead of overwriting it
+shopt -s histappend
+
 # add/override MAC OSX utils with homebrew-installed coreutils
 export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
 export MANPATH="/usr/local/opt/coreutils/libexec/gnuman:$MANPATH"
@@ -46,8 +51,7 @@ bash_prompt_command() {
     if [[ $? == 0 ]]; then
 	RETURN_CODE_COLOR="${CONSOLE_FG_GREEN}${COFFEE_MUG}${CONSOLE_ATTR_NONE} "
     fi
-    # \[\033]0;$TERM_TITLE \u@\h:\w\007\]
-    export PS1="${RETURN_CODE_COLOR}\t${CONSOLE_USER_COLOR}\u${CONSOLE_ATTR_NONE}@${CONSOLE_HOST_COLOR}\h${CONSOLE_ATTR_NONE}:${CONSOLE_PWD_COLOR}\w${CONSOLE_ATTR_NONE} "
+    export PS1="\[\033]0;$TERM_TITLE \u@\h:\w\007\]${RETURN_CODE_COLOR}\t ${CONSOLE_USER_COLOR}\u${CONSOLE_ATTR_NONE}@${CONSOLE_HOST_COLOR}\h${CONSOLE_ATTR_NONE}:${CONSOLE_PWD_COLOR}\w${CONSOLE_ATTR_NONE} "
 }
 
 PROMPT_COMMAND=bash_prompt_command
